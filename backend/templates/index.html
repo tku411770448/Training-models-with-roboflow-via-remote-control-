@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YOLO Web Builder v4 · Roboflow Datasets</title>
+  <!-- cache-bust to ensure users get the latest JS/CSS after updating the bundle -->
+  <link rel="stylesheet" href="/static/style.css?v=14" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-title" data-i18n="brandTitle">YOLO Web Builder v4 · Roboflow Datasets</div>
+        <div class="brand-sub" data-i18n="brandSub">Detection only · Wizard 模式 · 只執行勾選項目</div>
+      </div>
+      <div class="clock" aria-label="clock">
+        <div class="clock-label" data-i18n="clockLabel">本機時間</div>
+        <div id="clockText" class="clock-text">--:--:--</div>
+      </div>
+      <div class="lang-toggle topbar-lang" role="group" aria-label="language">
+        <button class="btn small" type="button" id="langZh" data-i18n="langZh">中文</button>
+        <button class="btn small" type="button" id="langEn" data-i18n="langEn">English</button>
+      </div>
+      <button class="btn small" id="homeBtn" type="button" data-i18n="homeBtn">Home</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-card">
+        <h1 data-i18n="heroTitle">建立可重現的 YOLO 訓練/匯出流程</h1>
+        <p data-i18n-html="heroDesc">依序完成 4 個步驟。每一步按 <b>Submit</b> 才會解鎖下一步；按 <b>Back</b> 可回到前一步。</p>
+      </div>
+
+      <div class="notes" aria-live="polite">
+        <div class="notes-title" data-i18n="notesTitle">重要提醒（依目前步驟顯示）</div>
+        <ul id="stageNotesList"></ul>
+      </div>
+    </section>
+
+    <!-- Home (Task list) -->
+    <section class="home" id="homeView">
+      <div class="card">
+        <div class="card-head">
+          <div class="head-row">
+            <h2 id="homeTitle" data-i18n="projects">Projects</h2>
+            <div class="row gap">
+<button class="btn primary" type="button" id="newTaskBtn" data-i18n="newTask">New Task</button>
+            </div>
+          </div>
+          <div class="rule" id="homeRule" data-i18n-html="rule">規則：專案需按下 <b>Save</b> 才會被保存並出現在此列表。</div>
+        </div>
+        <div class="card-body">
+          <div id="homeEmpty" class="home-empty">
+            <div id="homeEmptyText" class="home-empty-text" data-i18n="empty">Try to do something!</div>
+          </div>
+          <div id="projectList" class="project-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <div id="wizardView" class="hidden">
+    <!-- Progress / Stepper -->
+    <section class="progress-wrap" aria-label="progress">
+      <div class="progress-bar">
+        <div class="progress-track"></div>
+        <div id="progressFill" class="progress-fill"></div>
+
+        <button class="progress-step" data-step="1" type="button">
+          <span class="icon">⚙️</span>
+          <span class="label" data-i18n="stepModeLabel">Mode</span>
+        </button>
+        <button class="progress-step" data-step="2" type="button">
+          <span class="icon">🗂️</span>
+          <span class="label" data-i18n="stepDatasetLabel">Dataset</span>
+        </button>
+<button class="progress-step" data-step="4" type="button">
+          <span class="icon">🧠</span>
+          <span class="label" data-i18n="stepTrainExportLabel">Train&Export</span>
+        </button>
+<button class="progress-step" data-step="6" type="button">
+          <span class="icon">🚀</span>
+          <span class="label" data-i18n="stepReviewLabel">Review</span>
+        </button>
+      </div>
+
+      <div class="progress-hint" id="progressHint" data-i18n="progressHintInit">完成 Step 1 後會解鎖後續步驟。</div>
+    </section>
+
+    <!-- Wizard Steps (only one visible at a time) -->
+    <section class="wizard">
+
+      <!-- Step 1 -->
+      <section class="step" data-step="1">
+        <div class="card">
+          <div class="card-head">
+            <div class="head-row">
+            <h2 data-i18n="step1Title">Step 1 · Mode</h2>
+            <button class="help-btn" type="button" data-help="1" data-i18n="helpBtn">HELP?</button>
+          </div>
+            <div class="rule" data-i18n="s1_rule">規則：請先填寫 Task（唯一）並選擇運行模式。若選 SSH，必須填寫 SSH 連線資訊。</div>
+              <label class="block"><span data-i18n="s1_task_label">Task（唯一）</span>
+              <input id="task_name" data-i18n-placeholder="s1_task_ph" placeholder="例如：helmet_v1 / face_aug / plate_y11">
+            </label>
+            <div class="hint" data-i18n="s1_task_hint">Task 用於保存/區分每次專案紀錄；需唯一。按下 Save 後才會被保存。</div>
+            <div class="help-panel" id="help-step-1" hidden data-i18n-html="help1_html">
+              <ul>
+                <li><b>Generate bundle only</b>：只產生可執行的 bundle zip（下載後你自行在任意機器執行）。</li>
+                <li><b>Run via SSH</b>：由本網站透過 SSH 連到你的設備執行（需要填 Host/User/認證）。</li>
+                <li><b>Host</b>：要連線的目標機器（建議填 IP 或可解析的主機名）。</li>
+                <li><b>Remote dir</b>：遠端放置 bundle 與輸出檔的目錄（建議用絕對路徑）。</li>
+                <li><b>Python</b>：遠端執行用的 python 指令或完整路徑（例如 conda env 的 python）。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="choices">
+              <label class="choice">
+                <input type="radio" name="mode" value="bundle">
+                <span class="dot"></span>
+                <span class="text" data-i18n="s1_mode_bundle">Generate bundle only（只產生 bundle 下載）</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="mode" value="ssh">
+                <span class="dot"></span>
+                <span class="text" data-i18n="s1_mode_ssh">Run via SSH（由網站 SSH 到你的設備執行）</span>
+              </label>
+            </div>
+
+            <div id="sshBox" class="subcard hidden">
+              <div class="subcard-title" data-i18n="s1_ssh_title">SSH 設定（選 SSH 才需要）</div>
+              <div class="grid">
+                <label><span data-i18n="s1_ssh_host">Host</span> <input id="ssh_host" data-i18n-placeholder="s1_ssh_host_ph" placeholder="1.2.3.4 或 hostname"></label>
+                <label><span data-i18n="s1_ssh_port">Port</span> <input id="ssh_port" type="number" value="22"></label>
+                <label><span data-i18n="s1_ssh_user">User</span> <input id="ssh_user" data-i18n-placeholder="s1_ssh_user_ph" placeholder="ubuntu"></label>
+                <label><span data-i18n="s1_ssh_dir">Remote dir</span> <input id="ssh_dir" value="~/yolo_web_builder_runs"></label>
+                <label><span data-i18n="s1_ssh_py">Python executable</span> <input id="ssh_py" value="python3" data-i18n-placeholder="s1_ssh_py_ph" placeholder="python3"></label>
+                <label><span data-i18n="s1_ssh_pass">Password</span> <input id="ssh_pass" type="password" data-i18n-placeholder="s1_ssh_pass_ph" placeholder="(可留空，用 key)"></label>
+              </div>
+              <div class="hint" data-i18n-html="s1_ssh_py_hint">Python should be an executable, e.g. <code>python3</code> or <code>/home/.../miniconda3/envs/ENV/bin/python</code>.</div>
+              <label class="block"><span data-i18n="s1_ssh_key_label">Private key（PEM，選填）</span>
+                <textarea id="ssh_key" rows="6" data-i18n-placeholder="s1_ssh_key_ph" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
+              </label>
+              <div class="hint" data-i18n="s1_ssh_hint">建議使用 SSH key，並使用權限受限的帳號（避免 root）。</div>
+            </div>
+
+            <div class="error" id="err1"></div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn ghost" type="button" data-action="back" disabled><span data-i18n="btnBack">Back</span></button>
+            <button class="btn primary" type="button" data-action="next"><span data-i18n="btnSubmit">Submit</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="step" data-step="2" hidden>
+        <div class="card">
+          <div class="card-head">
+            <div class="head-row">
+            <h2 data-i18n="step2Title">Step 2 · Dataset(s)（Roboflow）</h2>
+            <button class="help-btn" type="button" data-help="2" data-i18n="helpBtn">HELP?</button>
+          </div>
+            <div class="rule" data-i18n="s2_rule">規則：資料集目前僅支援 Roboflow。至少需要 1 個 dataset（workspace / project / version）。若要 Hybrid，請新增 ≥2 並為每個 dataset 填寫「類別名稱」。</div>
+            <div class="help-panel" id="help-step-2" hidden data-i18n-html="help2_html">
+              <ul>
+                <li><b>API key</b>：Roboflow 的 API key（<u>無法從 URL 自動推算</u>），請自行貼上。</li>
+                <li><b>Workspace (slug)</b>：Roboflow Universe/Workspace 的識別字（URL 第一段）。</li>
+                <li><b>Project (slug)</b>：資料集專案識別字（URL 第二段）。</li>
+                <li><b>Version</b>：資料集版本號（URL 內的 <code>/dataset/&lt;version&gt;</code>）。</li>
+                <li><b>Format</b>：下載格式（本系統主要用 YOLOv8/YOLOv11；若選 YOLOv11，下載端會以相容的 YOLOv8 格式取得資料）。</li>
+                <li><b>Class name</b>：此資料集對應的類別名稱（Hybrid 合併時會以此建立最終 names）。</li>
+                <li><b>快速填入</b>：三種方式擇一（Jupyter / Terminal / Raw URL），貼 Roboflow 的 Download Code 或 URL，按 Parse 即可自動填 <b>API key / workspace / project / version / format</b>；API key 會自動遮罩避免明文留在畫面。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card-body">
+            
+<div class="subcard" id="rfQuickBox">
+  <div class="subcard-title" data-i18n="s2_quick_title">快速填入（貼 Download Code / CLI / Raw URL，自動解析）</div>
+
+  <div class="rf-tabs" role="tablist" aria-label="Roboflow download code modes">
+    <button class="rf-tab active" type="button" data-rf-mode="jupyter" aria-selected="true" data-i18n="s2_tab_jupyter">Jupyter</button>
+    <button class="rf-tab" type="button" data-rf-mode="terminal" aria-selected="false" data-i18n="s2_tab_terminal">Terminal</button>
+    <button class="rf-tab" type="button" data-rf-mode="rawurl" aria-selected="false" data-i18n="s2_tab_rawurl">Raw URL</button>
+  </div>
+
+  <div class="rf-panels">
+    <div class="rf-panel" data-rf-panel="jupyter">
+      <label><span data-i18n="s2_panel_jupyter_label">Jupyter / Python Download Code</span>
+        <textarea id="rf_code_jupyter" rows="6" data-i18n-placeholder="s2_panel_jupyter_ph" placeholder="貼 Roboflow『Jupyter』下載程式碼（Python snippet）"></textarea>
+      </label>
+      <div class="hint" data-i18n-html="s2_hint_jupyter">支援：<code>Roboflow(api_key=&quot;...&quot;)</code>、<code>.workspace(&quot;...&quot;)</code>、<code>.project(&quot;...&quot;)</code>、<code>.version(n)</code>、<code>.download(&quot;yolov8&quot;)</code>。</div>
+    </div>
+
+    <div class="rf-panel" data-rf-panel="terminal" hidden>
+      <label><span data-i18n="s2_panel_terminal_label">Terminal Download Code</span>
+        <textarea id="rf_code_terminal" rows="5" data-i18n-placeholder="s2_panel_terminal_ph" placeholder="貼 Roboflow『Terminal』下載程式碼（例如 roboflow CLI 或 curl 指令）"></textarea>
+      </label>
+      <div class="hint" data-i18n-html="s2_hint_terminal">支援：<code>roboflow download -f &lt;format&gt; -l &lt;path&gt; &lt;workspace&gt;/&lt;project&gt;/&lt;version&gt;</code> 或包含 URL 的 <code>curl &quot;https://api.roboflow.com/...&quot;</code>。</div>
+    </div>
+
+    <div class="rf-panel" data-rf-panel="rawurl" hidden>
+      <label><span data-i18n="s2_panel_rawurl_label">Raw URL</span>
+        <textarea id="rf_code_rawurl" rows="3" data-i18n-placeholder="s2_panel_rawurl_ph" placeholder="貼 Raw URL（REST API）或 Universe URL（例如 https://universe.roboflow.com/<workspace>/<project>/<version> ）"></textarea>
+      </label>
+      <div class="hint" data-i18n-html="s2_hint_rawurl">支援：REST API URL（含 <code>api_key</code>）或 <code>&lt;workspace&gt;/&lt;project&gt;/&lt;version&gt;</code>（格式不足時不會覆蓋 Dataset 的 Format）。</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <label><span data-i18n="s2_apply_to">套用到 Dataset #</span>
+      <input id="rf_apply_idx" type="number" min="1" value="1">
+    </label>
+  </div>
+
+  <div class="row between" style="margin-top:10px;">
+    <div class="hint" data-i18n="s2_parse_hint">三種方式擇一：選好語法類型後貼上，再按 Parse。包含 API key 時，會自動遮罩避免明文留在畫面。</div>
+    <button id="rf_parse_code_btn" class="btn" type="button" data-i18n="s2_parse_btn">Parse</button>
+  </div>
+  <div class="error" id="rf_parse_err"></div>
+</div>
+
+            <div class="row between">
+              <div class="hint">可新增多個 dataset（Hybrid 需要 ≥2）。</div>
+              <button id="addDataset" class="btn" type="button" data-i18n="s2_add_ds_btn">+ Add dataset</button>
+            </div>
+
+            <div id="datasets"></div>
+            <div class="error" id="err2"></div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn ghost" type="button" data-action="back"><span data-i18n="btnBack">Back</span></button>
+            <button class="btn primary" type="button" data-action="next"><span data-i18n="btnSubmit">Submit</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="step" data-step="4" hidden>
+        <div class="card">
+          <div class="card-head">
+            <div class="head-row">
+            <h2 data-i18n="step4Title">Step 4 · Train&Export</h2>
+            <button class="help-btn" type="button" data-help="4" data-i18n="helpBtn">HELP?</button>
+          </div>
+            <div class="rule" data-i18n="s4_rule">規則：本專案僅支援 Detection。請選 YOLOv8/YOLO11 與大小 n/s/m/l/x，並設定超參數。</div>
+            <div class="help-panel" id="help-step-4" hidden data-i18n-html="help4_html">
+              <ul>
+                <li><b>Model family/size</b>：選 YOLOv8/YOLO11 + 尺寸（n/s/m/l/x）。</li>
+                <li><b>epochs/batch/imgsz/workers</b>：訓練輪數/批次/輸入尺寸/資料載入執行緒數。</li>
+                <li><b>Device</b>：可填 <code>cpu</code>、單 GPU <code>0</code>，或多 GPU <code>0,1,2,3</code>（多 GPU 需機器有對應 GPU）。</li>
+                <li><b>Optimizer/lr0/patience/close_mosaic</b>：常用訓練設定；建議先用少量 epochs 測通流程。</li>
+                <li><b>Data balancing</b>：SMOTE-like oversampling（重複取樣）只作用在 <b>train</b>，會輸出平衡前/後的 class 數量圖與 CSV。</li>
+                <li><b>Balance target</b>：
+                  <ul>
+                    <li><b>mean</b>：補到各類別平均數（較穩，預設）。</li>
+                    <li><b>max</b>：補到最多類別數（最平衡但資料可能膨脹）。</li>
+                    <li><b>custom</b>：自訂目標（"multiplier" 代表以 max_count×倍率；"count" 代表固定目標數量）。</li>
+                  </ul>
+                </li>
+                <li><b>Merge（選填）</b>：當未勾選 Hybrid merge 時，會出現依 Class name 分組的 datasets。你可選擇要用哪些 datasets 進入訓練；勾選後請按 Select/Merge 才會生效。</li>
+</ul>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="subcard" id="runsBox">
+              <div class="subcard-title" data-i18n="s4_targets_title">Targets（Train &amp; Export）</div>
+              <div class="hint" data-i18n-html="s4_targets_hint">勾選 Target 後，右側「▾」可展開細項。每個 Target 的細項都必須按下 <b>Save</b> 才算完成。<br><b>Hybrid 與其他 Target 互斥</b>：可同時勾選（不會自動取消），但按下 Step4 Submit 時會檢查互斥並提示你修正。</div>
+              <div id="runBars" class="run-bars"></div>
+              <div class="error" id="runErr"></div>
+            </div>
+
+            <div class="error" id="err4"></div>
+</div>
+
+          <div class="card-actions">
+            <button class="btn ghost" type="button" data-action="back"><span data-i18n="btnBack">Back</span></button>
+            <button class="btn primary" type="button" data-action="next"><span data-i18n="btnSubmit">Submit</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 6 -->
+      <section class="step" data-step="6" hidden>
+        <div class="card">
+          <div class="card-head">
+            <div class="head-row">
+            <h2 data-i18n="step6Title">Step 6 · Review & Run</h2>
+            <button class="help-btn" type="button" data-help="6" data-i18n="helpBtn">HELP?</button>
+          </div>
+            <div class="rule" data-i18n-html="s6_rule">規則：請確認所有選擇。按 <b>Save</b> 後才會保存專案；按 Submit 後會依 mode 產生 bundle 或 SSH 執行。</div>
+            <div class="warn" id="saveWarn" hidden data-i18n="s6_save_warn">提醒：此專案尚未儲存，請按下 Save 以保存。</div>
+            <div class="help-panel" id="help-step-6" hidden data-i18n-html="help6_html">
+              <ul>
+                <li>此頁會整理你前面所有選擇，請先確認無誤。</li>
+                <li>按 <b>Submit</b> 後才會真正執行（或產生 bundle / 或 SSH 執行）。</li>
+                <li>執行完成後可下載 artifacts（results.png、曲線圖、log）。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="subcard">
+              <div class="subcard-title">Summary（請確認）</div>
+              <div id="summary" class="summary"></div>
+            </div>
+
+            <div class="error" id="err6"></div>
+
+            <div class="subcard">
+              <div class="subcard-title">執行輸出</div>
+              <pre id="out" class="out" aria-label="output"></pre>
+            </div>
+            <div class="subcard" id="jobControlCard" hidden>
+              <div class="subcard-title" data-i18n="jobCtrlTitle">Training controls</div>
+              <div class="job-controls">
+                <button class="btn" type="button" id="pauseBtn" data-i18n="btnPause">暫停</button>
+                <button class="btn" type="button" id="resumeBtn" data-i18n="btnResume">繼續</button>
+                <button class="btn" type="button" id="retrainBtn" data-i18n="btnRetrain">重訓</button>
+                <button class="btn danger" type="button" id="terminateBtn" data-i18n="btnTerminate">終止</button>
+                <button class="btn" type="button" id="downloadArtifactsBtn" hidden data-i18n="btnDownloadArtifacts">下載 artifacts.zip</button>
+              </div>
+
+              <div class="job-diag">
+                <button class="btn" type="button" id="diagGpuBtn">GPU</button>
+                <button class="btn" type="button" id="diagProcsBtn">Train procs</button>
+                <button class="btn" type="button" id="diagJobBtn">Job group</button>
+                <button class="btn" type="button" id="diagRunsBtn">runs/train</button>
+                <button class="btn" type="button" id="diagResultsBtn">results.csv</button>
+                <button class="btn" type="button" id="diagLogBtn">run.log</button>
+                <button class="btn" type="button" id="diagLogEndBtn">log_end</button>
+                <button class="btn" type="button" id="diagStageBtn">stage</button>
+                <button class="btn" type="button" id="diagErrBtn">errors</button>
+              </div>
+
+              <div class="job-diag-help">
+                <ul>
+                  <li><code>nvidia-smi</code> / <code>diag:gpu</code>：看 GPU 使用率與 Processes（是否真的有在跑）</li>
+                  <li><code>diag:job</code>：列出 PGID=job.pid 的整組程序（最可靠）</li>
+                  <li><code>diag:procs</code>：用關鍵字找 yolo/ultralytics/train.py（輔助）</li>
+                  <li><code>diag:runs</code>：看 runs/train 是否持續產出檔案/時間戳</li>
+                  <li><code>diag:results</code>：tail results.csv，觀察 epoch/metrics 是否持續更新</li>
+                  <li><code>diag:log</code>：直接 tail <code>run.log</code>（看最後停在哪一步）</li>
+                  <li><code>diag:log_end</code>：只看 run.log 最後 60 行（快速看結尾有沒有 ✅ Done）</li>
+                  <li><code>diag:stage</code>：顯示目前進度標記（pip_done / pipeline_start / pipeline_done）</li>
+                  <li><code>diag:errors</code>：從 <code>run.log</code> 抽出 Error/Traceback（快速找原因）</li>
+                </ul>
+              </div>
+              <div class="job-cmd">
+                <input class="input" id="cmdInput" value="nvidia-smi" data-i18n-placeholder="cmdPlaceholder" placeholder="nvidia-smi" />
+                <button class="btn" type="button" id="cmdRunBtn" data-i18n="btnRunCmd">Run</button>
+              </div>
+              <pre id="cmdOut" class="out out-mini" aria-label="command output"></pre>
+              <div class="job-status" id="jobStatus"></div>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn ghost" type="button" data-action="back"><span data-i18n="btnBack">Back</span></button>
+            <button class="btn" type="button" id="saveBtn" data-i18n="btnSave">Save</button>
+            <button class="btn primary" type="button" data-action="final"><span data-i18n="btnSubmit">Submit</span></button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/static/app.js?v=16"></script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+# ------------------------------
+# Python
+# ------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter / editor
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# ------------------------------
+# Environment / secrets
+# ------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# ------------------------------
+# Build / logs / runtime output
+# ------------------------------
+*.log
+logs/
+*.pid
+*.out
+*.err
+
+# Generated archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# ------------------------------
+# Project-specific generated data
+# ------------------------------
+backend/jobs/
+pip_cache/
+
+# Common ML outputs if generated inside repo
+artifacts/
+bundles/
+datasets/
+models/
+runs/
+checkpoints/
+cache/
+output/
+outputs/
+exports/
+
+# Training / export leftovers
+*.pt
+*.onnx
+*.engine
+*.tflite
+
+# ------------------------------
+# Frontend / package managers
+# ------------------------------
+node_modules/
+
+# ------------------------------
+# Local temp / debug files
+# ------------------------------
+*.tmp
+*.temp
+*.bak

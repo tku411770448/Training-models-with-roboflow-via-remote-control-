@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    image: yolo-web-builder:v4
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - JOBS_DIR=/app/backend/jobs
+      - TRUST_PROXY_HEADERS=${TRUST_PROXY_HEADERS:-1}
+    volumes:
+      - type: bind
+        source: ./backend/jobs
+        target: /app/backend/jobs
