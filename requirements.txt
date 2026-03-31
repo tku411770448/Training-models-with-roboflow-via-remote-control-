@@ -1,7 +1,15 @@
-# Portable requirements regenerated from the uploaded requirements.txt.
-# Local path/direct-reference entries such as `name @ file:///...` were converted
-# to standard package specifiers so the file can be installed on other machines.
-# For an exact Conda replica, export environment.yml separately.
+# Remote-installable adaptation for the current Python 3.10 x86_64 remote host.
+#
+# What changed:
+# 1) Entries of the form 'name @ file:///...' were converted to installable package names.
+#    The original file encoded local build paths, not portable version pins.
+# 2) 'pytorch-triton==3.5.0+git27664085' was commented out because that exact build is
+#    not published for cp310/linux_x86_64 on the public PyTorch nightly index.
+# 3) All explicit '==version' pins from the original file were preserved unchanged.
+#
+# If you later recover the exact versions behind the former local-path entries,
+# replace the unpinned names below with exact 'package==version' pins.
+--extra-index-url https://download.pytorch.org/whl/nightly
 absl-py==2.3.1
 accelerate==1.12.0
 ai-edge-litert==2.0.2
@@ -128,7 +136,7 @@ prettytable==3.11.0
 prompt_toolkit
 protobuf==6.33.0
 psutil
-ptyprocess
+ptyprocess==0.7.0
 pure_eval
 py-cpuinfo==9.0.0
 py3nvml==0.2.7
@@ -148,7 +156,7 @@ python-magic==0.4.27
 python-multipart==0.0.21
 pytools==2025.2.4
 pytorch-quantization==2.1.3
-pytorch-triton==3.5.0+git27664085
+# pytorch-triton==3.5.0+git27664085  # unavailable for cp310/linux_x86_64 on public indexes
 pytz==2025.2
 PyYAML==6.0.2
 pyzmq
