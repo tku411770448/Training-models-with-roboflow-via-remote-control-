@@ -12,6 +12,7 @@ __pycache__/
 .coverage
 .coverage.*
 htmlcov/
+bundle */
 
 # Virtual environments
 .venv/

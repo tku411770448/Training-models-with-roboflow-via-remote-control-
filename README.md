@@ -301,7 +301,10 @@ The SSH runner supports:
 - encrypted key handling with passphrase through the password field
 
 ### Engine portability
-TensorRT `.engine` files are generally device- and environment-sensitive. Build them on the actual target system when possible.
+TensorRT `.engine` files should be treated as **non-portable deployment artifacts**. In practice, an engine is tied to the runtime environment in which it is built, including the target platform, TensorRT version, CUDA / driver stack, and often the GPU architecture itself. NVIDIA explicitly notes that serialized TensorRT engines are not portable across platforms, and without hardware compatibility mode they are also not portable across different GPU architectures. For reliable deployment, build the `.engine` file on the actual target system whenever possible.
+
+### TFLite portability
+Unlike TensorRT `.engine` files, `.tflite` models do **not** have the same environment-bound portability limitation. A `.tflite` file is generally portable across systems as long as the target machine has a compatible TensorFlow Lite / LiteRT runtime. In the common CPU-only path, inference is executed with CPU kernels, so deployment typically only requires a compatible CPU runtime rather than device-specific engine rebuilding. This is why `.tflite` is usually the more portable export format for CPU inference workflows.
 
 ### INT8 export
 INT8 export depends on calibration data and on the target runtime stack. Actual success still depends on the target machine environment.
