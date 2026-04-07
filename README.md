@@ -58,7 +58,7 @@ cd /<YOUR DIRECTORY NAME>
 git pull
 ```
 
-2. **Build the python environment which you would like to use to runtime, then actiavte it and downlaod dependencies.**
+2. **Create the exact Python environment that will be used by SSH execution, then install the dependencies into that same interpreter.**
 
 [requirements.txt](requirements.txt)
 ```bash
@@ -66,6 +66,24 @@ conda create -n <YOUR PYTHON ENVIRONMENT NAME> python=3.10
 conda activate <YOUR PYTHON ENVIRONMENT NAME>
 python -m pip install -r requirements.txt
 ```
+
+**Important compatibility note**
+
+When you run the bundle through SSH, the backend will use the exact Python executable you provide in the UI. For example, if you set:
+
+```text
+/home/tkupzj0609/miniconda3/envs/yolov11/bin/python
+```
+
+then the required packages must be installed for **that exact interpreter and environment**. In other words, the package set must be compatible with the SSH runtime environment itself; otherwise the remote run will fail during import or pipeline execution.
+
+For that reason, always install packages with the target interpreter explicitly, for example:
+
+```bash
+/home/tkupzj0609/miniconda3/envs/yolov11/bin/python -m pip install -r requirements.txt
+```
+
+Do **not** rely on packages being installed under `~/.local` (for example `~/.local/lib/python3.10/site-packages`). Python user-site installs are typically placed under `~/.local/...`, and `pip install --user` targets that location. However, when a remote job is expected to run inside a specific conda or virtual environment interpreter, the required packages should be installed into that interpreter's own `site-packages`, not into a separate `.local` user site. If the required packages are installed only in `.local` instead of the designated environment path, the program may still fail even though the packages appear to be present.
 
 ## Main features
 
